@@ -1,0 +1,9 @@
+{
+    "level": 5,
+    "type": "SuperHard",
+    "duration": 500,
+    "layers": 3,
+    "locks": 2,
+    "items": 20,
+    "shelves": 15
+}
