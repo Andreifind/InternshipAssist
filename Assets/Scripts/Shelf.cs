@@ -3,31 +3,43 @@ using UnityEngine;
 
 public class Shelf : MonoBehaviour
 {
-    public int layers; 
+    public int layers;
     public int width;
+    private bool allMatch = true;
 
     public void CheckAndDestroyItems()
     {
-        // Collect all slots with Layer 0
-        List<Slot> layer1Slots = new List<Slot>();
+        List<Slot> layer0Slots = new List<Slot>();
+        List<Slot> higherLayerSlots = new List<Slot>();
+
         foreach (Transform child in transform)
         {
             Slot slot = child.GetComponent<Slot>();
-            if (slot != null && slot.Layer == 0)
+            if (slot != null)
             {
-                layer1Slots.Add(slot);
+                if (slot.Layer == 0)
+                {
+                    layer0Slots.Add(slot); 
+                }
+                else if (slot.Layer > 0)
+                {
+                    higherLayerSlots.Add(slot); 
+                }
             }
         }
 
-        if (layer1Slots.Count == 3)
+        if (layer0Slots.Count == 3)
         {
             ItemType firstItemType = null;
-            bool allMatch = true;
+            allMatch = true;
+            bool allEmpty = true; 
 
-            foreach (Slot slot in layer1Slots)
+            foreach (Slot slot in layer0Slots)
             {
                 if (slot.IsHoldingItem && slot.GetComponentInChildren<ItemType>() != null)
                 {
+                    allEmpty = false;
+
                     ItemType currentItemType = slot.GetComponentInChildren<ItemType>();
                     if (firstItemType == null)
                     {
@@ -42,13 +54,61 @@ public class Shelf : MonoBehaviour
                 else
                 {
                     allMatch = false;
-                    break;
                 }
             }
 
-            if (allMatch)
+            bool hasHigherLayerSlots = higherLayerSlots.Count > 0;
+
+            if (hasHigherLayerSlots && allEmpty)
             {
-                foreach (Slot slot in layer1Slots)
+                foreach (Slot slot in layer0Slots)
+                {
+                    Destroy(slot.gameObject);
+                }
+
+                foreach (Transform child in transform)
+                {
+                    Slot slot = child.GetComponent<Slot>();
+                    if (slot != null && slot.Layer > 0)
+                    {
+                        slot.Layer -= 1;
+                        slot.RefreshCollider();
+                    }
+                }
+            }
+
+            else if (allMatch && hasHigherLayerSlots)
+            {
+                foreach (Slot slot in layer0Slots)
+                {
+                    Destroy(slot.gameObject);
+                }
+
+                foreach (Transform child in transform)
+                {
+                    Slot slot = child.GetComponent<Slot>();
+                    if (slot != null && slot.Layer > 0)
+                    {
+                        slot.Layer -= 1;
+                        slot.RefreshCollider();
+
+                        ItemType item = slot.GetComponentInChildren<ItemType>();
+                        if (item != null)
+                        {
+                            item.ChangeColorTint(slot.Layer);
+                            item.ChangeOrderInLayer(slot.Layer);
+                        }
+                    }
+                }
+                this.GetComponentInParent<LevelManager>().MatchedItems();
+                this.GetComponentInParent<LevelManager>().Combo.AddCombo();
+                this.GetComponentInParent<LevelManager>().SpawnPopup(transform.position);
+            }
+
+
+            else if (allMatch && !hasHigherLayerSlots)
+            {
+                foreach (Slot slot in layer0Slots)
                 {
                     ItemType itemType = slot.GetComponentInChildren<ItemType>();
                     if (itemType != null)
@@ -57,23 +117,10 @@ public class Shelf : MonoBehaviour
                         slot.HoldTheItem(false); 
                     }
                 }
-
-                foreach (Transform child in transform)
-                {
-                    Slot slot = child.GetComponent<Slot>();
-                    ItemType itemType = slot.GetComponentInChildren<ItemType>();
-                    if (slot != null && slot.Layer > 0)
-                    {
-                        slot.Layer -= 1; 
-                        itemType.ChangeColorTint(slot.Layer);
-                        itemType.ChangeOrderInLayer(slot.Layer);
-                    }
-                }
+                this.GetComponentInParent<LevelManager>().MatchedItems();
+                this.GetComponentInParent<LevelManager>().Combo.AddCombo();
+                this.GetComponentInParent<LevelManager>().SpawnPopup(transform.position);
             }
         }
     }
-
-
-
-
 }

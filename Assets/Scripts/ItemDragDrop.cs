@@ -8,6 +8,7 @@ public class ItemDragDrop : MonoBehaviour
     private Vector3 _originalPosition;
     private Slot _currentSlot = null;
     private Slot _previousSlot = null;
+    private WiggleEffect _wiggleEffect;
 
     private void Start()
     {
@@ -16,6 +17,7 @@ public class ItemDragDrop : MonoBehaviour
             _originalParent = this.transform.parent;
             _originalPosition = this.transform.parent.localPosition;
         }
+        _wiggleEffect = GetComponent<WiggleEffect>();
     }
 
     private void Update()
@@ -30,7 +32,7 @@ public class ItemDragDrop : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && (this.GetComponentInParent<Slot>().Layer == 0))
         {
             Debug.Log("detach");
             if (this.transform.parent != null)
@@ -49,30 +51,33 @@ public class ItemDragDrop : MonoBehaviour
             _startPos = mousePos - (Vector2)this.transform.position;
 
             _isBeingHeld = true;
+            _wiggleEffect.OnDetach();
         }
     }
 
     private void OnMouseUp()
     {
         _isBeingHeld = false;
-
-
-        if (_currentSlot != null && !_currentSlot.IsHoldingItem)
+        if (_currentSlot != null && !_currentSlot.IsHoldingItem && _currentSlot.Layer==0)
         {
             this.transform.SetParent(_currentSlot.transform);
             this.transform.position = _currentSlot.transform.position;
             _currentSlot.HoldTheItem(true);
             _originalParent = this.transform.parent;
             _originalPosition = this.transform.localPosition;
+            _previousSlot.RefreshCollider();
         }
         else
         {
             this.transform.SetParent(_originalParent);
             this.transform.localPosition = new Vector2(0,0);
-            _previousSlot.HoldTheItem(true);
+            if (_previousSlot != null)
+                _previousSlot.HoldTheItem(true);
         }
 
         _currentSlot = null;
+        _wiggleEffect.OnReattach();
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)
