@@ -14,22 +14,28 @@ public class LevelManager : MonoBehaviour
     public float ShelfSpacingX = 0f;
     public float ShelfSpacingY = 0f;
     public float SlotSpacing = 1.0f;
+    public float ShelfDownOffset = 2f;
 
     private LevelData _currentLevelData;
     private List<int> _itemPool = new List<int>();
+    private List<int> _itemPoolReduced = new List<int>();
 
     private GameObject _shelfPrefab;
     private GameObject _slotPrefab;
     private GameObject _itemPrefab;
+    private int itemTypes;
 
     public GameObject PopupText;
     public GameObject Star;
     public GameObject StarTargetPosition;
+    public LevelDisplay LevelDisp;
 
     public int Seconds;
     public Timer TimerScript;
 
     private int _destroyedItems;
+
+    private int _numberOfAvailableItems;
 
     public ComboBar Combo;
 
@@ -50,15 +56,17 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
+        _numberOfAvailableItems = _itemPrefab.GetComponent<ItemType>().Sprites.Count;
         ShelvesParent = this.transform;
         LoadCurrentLevel();
+
     }
 
     public void MatchedItems()
     {
         _destroyedItems++;
-        Debug.Log(_destroyedItems + "  " + _currentLevelData.items);
-        if (_destroyedItems == _currentLevelData.items)
+        Debug.Log(_destroyedItems + "  " + itemTypes);
+        if (_destroyedItems == itemTypes)
         {
             if (CurrentLevelIndex < 4)
             {
@@ -95,6 +103,8 @@ public class LevelManager : MonoBehaviour
             return;
         }
 
+        LevelDisp.UpdateLevelDisplay(CurrentLevelIndex);
+
         string path = LevelDataPaths.levelPaths[CurrentLevelIndex];
         TextAsset jsonFile = Resources.Load<TextAsset>(path);
 
@@ -115,18 +125,23 @@ public class LevelManager : MonoBehaviour
         TimerScript.Text.color = Color.white;
     }
 
-    void CreateShelves()
+    private void CreateShelves()
     {
+        int orderInLayer = 5;
+
         for (int i = 0; i < _currentLevelData.shelves; i++)
         {
             Vector3 position = CalculateShelfPosition(i);
-
             GameObject shelf = Instantiate(_shelfPrefab, position, Quaternion.identity, ShelvesParent);
             Shelf shelfScript = shelf.GetComponent<Shelf>();
             shelfScript.layers = _currentLevelData.layers;
             shelfScript.width = 3; // 3 slots wide
 
             SpriteRenderer shelfRenderer = shelf.GetComponent<SpriteRenderer>();
+
+            shelfRenderer.sortingOrder = orderInLayer - i/3;
+
+
             float shelfWidth = shelfRenderer.bounds.size.x;
 
             float slotWidth = _slotPrefab.GetComponent<SpriteRenderer>().bounds.size.x * _slotPrefab.transform.localScale.x;
@@ -159,11 +174,10 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    Vector3 CalculateShelfPosition(int shelfIndex)
+    private Vector3 CalculateShelfPosition(int shelfIndex)
     {
         if (_shelfPrefab == null)
         {
-            Debug.LogError("_shelfPrefab is not assigned in the LevelManager.");
             return Vector3.zero;
         }
 
@@ -171,7 +185,6 @@ public class LevelManager : MonoBehaviour
 
         if (spriteRenderer == null)
         {
-            Debug.LogError("SpriteRenderer component is missing on _shelfPrefab.");
             return Vector3.zero;
         }
 
@@ -185,36 +198,55 @@ public class LevelManager : MonoBehaviour
 
         float posX = column * (shelfScaledSize.x + ShelfSpacingX);
         float posY = -row * (shelfScaledSize.y + ShelfSpacingY);
-
+        if (CurrentLevelIndex % 2 == 0 && (shelfIndex + 2) % 3 == 0)
+            posY -= ShelfDownOffset;
         return new Vector3(posX, posY, 0);
     }
 
 
 
-    void PopulateItemPool()
+
+    private void PopulateItemPool()
     {
         _itemPool.Clear();
+        _itemPoolReduced.Clear();
 
-        int itemTypes = _currentLevelData.items;
+        itemTypes = 2;
+
+        if (_currentLevelData.type == "Start")
+            itemTypes = 2;
+        if (_currentLevelData.type == "Normal")
+            itemTypes = 16;
+        if (_currentLevelData.type == "Hard")
+            itemTypes = 22;
+        if (_currentLevelData.type == "SuperHard")
+            itemTypes = 30;
+
         int itemsPerType = 3;
+
+        for (int i = 0; i < _numberOfAvailableItems; i++)
+        {
+            _itemPoolReduced.Add(i);
+        }
+
+        _itemPoolReduced = _itemPoolReduced.OrderBy(x => Random.Range(0, _itemPoolReduced.Count)).ToList();
+
 
         for (int i = 0; i < itemTypes; i++)
         {
             for (int j = 0; j < itemsPerType; j++)
             {
-                _itemPool.Add(i);
+                _itemPool.Add(_itemPoolReduced[i]);
             }
         }
+        Debug.Log("Item pool count: "+_itemPool.Count);
 
         _itemPool = _itemPool.OrderBy(x => Random.Range(0, _itemPool.Count)).ToList();
-
-        Debug.Log($"Item pool populated with {itemTypes} unique types, {itemsPerType} of each type.");
-        Debug.Log(_itemPool.Count);
     }
 
 
 
-    void PlaceItemsInShelves()
+    private void PlaceItemsInShelves()
     {
         List<Transform> allSlots = new List<Transform>();
 
@@ -233,7 +265,6 @@ public class LevelManager : MonoBehaviour
 
         allSlots = allSlots.OrderBy(x => Random.Range(0, allSlots.Count)).ToList();
 
-        Debug.Log($"Total Slots: {allSlots.Count}, Items to place: {_itemPool.Count}");
 
         if (allSlots.Count < _itemPool.Count)
         {
@@ -241,33 +272,64 @@ public class LevelManager : MonoBehaviour
             return;
         }
 
-        int itemIndex = 0;
-        foreach (Transform slot in allSlots)
+        List<int> itemQueue = new List<int>(_itemPool);
+
+        // Shuffle the items initially
+        itemQueue = itemQueue.OrderBy(x => Random.Range(0, itemQueue.Count)).ToList();
+
+        // Adjust items to avoid consecutive duplicates
+        for (int i = 0; i < itemQueue.Count; i++)
         {
-            if (itemIndex >= _itemPool.Count)
+            if (i > 1 && itemQueue[i] == itemQueue[i - 1] && itemQueue[i] == itemQueue[i - 2])
+            {
+                // Find a different item to swap
+                bool itemSwapped = false;
+                for (int j = i + 1; j < itemQueue.Count; j++)
+                {
+                    if (itemQueue[j] != itemQueue[i - 1])
+                    {
+                        // Swap items
+                        int temp = itemQueue[i];
+                        itemQueue[i] = itemQueue[j];
+                        itemQueue[j] = temp;
+                        itemSwapped = true;
+                        break;
+                    }
+                }
+
+                if (!itemSwapped)
+                {
+                    return;
+                }
+            }
+        }
+
+        int itemIndex = 0;
+        for (int i = 0; i < allSlots.Count; i++)
+        {
+            if (itemIndex >= itemQueue.Count)
             {
                 Debug.Log("All items have been placed.");
                 break;
             }
 
-            Slot slotScript = slot.GetComponent<Slot>();
+            Slot slotScript = allSlots[i].GetComponent<Slot>();
 
             if (slotScript != null && !slotScript.IsHoldingItem)
             {
-                int itemType = _itemPool[itemIndex];
-                GameObject item = Instantiate(_itemPrefab, slot.position, Quaternion.identity);
+                int currentItem = itemQueue[itemIndex];
+                GameObject item = Instantiate(_itemPrefab, allSlots[i].position, Quaternion.identity);
 
                 ItemType itemScript = item.GetComponent<ItemType>();
                 if (itemScript == null)
                 {
-                    Debug.LogError("ItemType component missing from ItemPrefab!");
                     continue;
                 }
 
-                itemScript.Type = itemType;
+                itemScript.Type = currentItem;
                 slotScript.HoldTheItem(true);
 
-                item.transform.SetParent(slot);
+                item.transform.SetParent(allSlots[i]);
                 itemScript.ChangeColorTint(slotScript.Layer);
                 itemScript.ChangeOrderInLayer(slotScript.Layer);
 
@@ -275,13 +337,11 @@ public class LevelManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"Slot {slot.name} is already occupied or invalid.");
             }
         }
 
-        Debug.Log($"Items placed: {itemIndex}, Items left in pool: {_itemPool.Count - itemIndex}");
+        Debug.Log($"Items placed: {itemIndex}, Items left in pool: {itemQueue.Count - itemIndex}");
     }
-
 
     public void SpawnPopup(Vector2 position)
     {

@@ -81,6 +81,8 @@ public class Shelf : MonoBehaviour
             {
                 foreach (Slot slot in layer0Slots)
                 {
+                    ItemType itemType = slot.GetComponentInChildren<ItemType>();
+                    itemType.ApplyExplosion();
                     Destroy(slot.gameObject);
                 }
 
@@ -113,6 +115,7 @@ public class Shelf : MonoBehaviour
                     ItemType itemType = slot.GetComponentInChildren<ItemType>();
                     if (itemType != null)
                     {
+                        itemType.ApplyExplosion();
                         Destroy(itemType.gameObject);
                         slot.HoldTheItem(false); 
                     }

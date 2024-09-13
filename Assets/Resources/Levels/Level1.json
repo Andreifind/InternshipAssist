@@ -1,9 +1,7 @@
 {
     "level": 1,
-    "type": "Normal",
+    "type": "Start",
     "duration": 180,
     "layers": 1,
-    "locks": 0,
-    "items": 2,
     "shelves": 3
 }

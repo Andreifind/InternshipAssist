@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
-  m_Sprite: {fileID: 21300000, guid: c13ebe2e9ec635649b49c9788a06e06b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3819ba8cdb3f44648a6d4635610f2d01, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -125,7 +125,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.5, y: 1.5}
+    oldSize: {x: 1.35, y: 2.3333333}
     newSize: {x: 1.5, y: 1.5}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -187,26 +187,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 0
   Sprites:
-  - {fileID: 21300000, guid: c13ebe2e9ec635649b49c9788a06e06b, type: 3}
-  - {fileID: 21300000, guid: 83cb1b18e0051bc4fbfedcde10799a3b, type: 3}
-  - {fileID: 21300000, guid: c5f529f23a6a09e4ebdb6d9f9082fe67, type: 3}
-  - {fileID: 21300000, guid: 271229f7803ecb94ea69de17684ed278, type: 3}
-  - {fileID: 21300000, guid: 1d421428ee4295e4b83daffc066009e9, type: 3}
-  - {fileID: 21300000, guid: 91774301f306f0d428c68adfa3582e50, type: 3}
-  - {fileID: 21300000, guid: 42e54857eb5bf854faf6d34b3bc0a630, type: 3}
-  - {fileID: 21300000, guid: c6bae96685871f64cba89b2c0445bcc3, type: 3}
-  - {fileID: 21300000, guid: 2b266a66c1cf67f45b030eb7ed6ca8e6, type: 3}
-  - {fileID: 21300000, guid: e3d8a7fa0f11d284880c60b63b094b08, type: 3}
-  - {fileID: 21300000, guid: 1a3809dea1b138c478c0b4b6ca30be56, type: 3}
-  - {fileID: 21300000, guid: 0550c50f0945f5e4d9bcfb3664c9d903, type: 3}
-  - {fileID: 21300000, guid: 4aeaafd39f78aad44aac6f69b515336e, type: 3}
-  - {fileID: 21300000, guid: 77999f748279de245b2383f6625593ec, type: 3}
-  - {fileID: 21300000, guid: c41e9d8de54cb5d499ebb288bcf518ef, type: 3}
-  - {fileID: 21300000, guid: 642081a609fd3264d98117cc9f7be7d0, type: 3}
-  - {fileID: 21300000, guid: 8b659fd0d31920b44957c6155b7c8ca3, type: 3}
-  - {fileID: 21300000, guid: 17a890530fbc1dc418e33244dc3ba61f, type: 3}
-  - {fileID: 21300000, guid: e5fd7199d08f81249aeab528f9611db6, type: 3}
-  - {fileID: 21300000, guid: 2f3e0303b33f31e4ebd890576e3a9b12, type: 3}
+  - {fileID: 21300000, guid: 3819ba8cdb3f44648a6d4635610f2d01, type: 3}
+  - {fileID: 21300000, guid: ba1c50344cb5f0d499250b3fcf1e6824, type: 3}
+  - {fileID: 21300000, guid: fe652fc4882573342bfa1af791da1835, type: 3}
+  - {fileID: 21300000, guid: d63f2d49d0d882c4a9f0601d2d2dc18e, type: 3}
+  - {fileID: 21300000, guid: 4f6d99ce25c9a7e489e351c0e837d0f6, type: 3}
+  - {fileID: 21300000, guid: eed47721882cdcf46982cdd3974c11fb, type: 3}
+  - {fileID: 21300000, guid: e59cd0606b94c184a9a1ca444e3de09f, type: 3}
+  - {fileID: 21300000, guid: 589314c95931185438231ba230cdfe59, type: 3}
+  - {fileID: 21300000, guid: 0ce5a9476076afb4997de76f69d2d466, type: 3}
+  - {fileID: 21300000, guid: bd9f3625a061f8549b505229f4e9302c, type: 3}
+  - {fileID: 21300000, guid: 74e5cc072b28c4d4ea378fc58de6cc53, type: 3}
+  - {fileID: 21300000, guid: 1a529ab0052f20d4ab62a755a4a72d32, type: 3}
+  - {fileID: 21300000, guid: 093d8f65a6fc43a49b8b499816943aa3, type: 3}
+  - {fileID: 21300000, guid: a38096e4108e7d94c9620dc86b5759da, type: 3}
+  - {fileID: 21300000, guid: 076f85399bebab44a99db543e6de945b, type: 3}
+  - {fileID: 21300000, guid: eff8e38475eb9534c89edcd493530f90, type: 3}
+  - {fileID: 21300000, guid: df0f8d130d99f8c49a994b5d47663f18, type: 3}
+  - {fileID: 21300000, guid: 114520bd197d8004c8ba9c668b3460ca, type: 3}
+  - {fileID: 21300000, guid: ef77fa511e5ed4c4eaf65a212e004595, type: 3}
+  - {fileID: 21300000, guid: 0617d9c8e5bc2314e8b35e64385a0505, type: 3}
+  - {fileID: 21300000, guid: 2b90c388bd8e04b4b9714bf7ec0c3064, type: 3}
+  - {fileID: 21300000, guid: 1a7f8b7173bc91b42be377f9e0d2eb68, type: 3}
+  - {fileID: 21300000, guid: 6bf9426b8a6bacf478c2319d27596dd0, type: 3}
+  - {fileID: 21300000, guid: 913f5ed1d46cf644ab9576131f50341b, type: 3}
+  - {fileID: 21300000, guid: f2122f1140f6e444d960673fa9bcc377, type: 3}
+  - {fileID: 21300000, guid: 6800e060c0aa8fd4fbd5b11fe58c80ab, type: 3}
+  - {fileID: 21300000, guid: a45c774d889eee640b1b8a16ab8430ca, type: 3}
+  - {fileID: 21300000, guid: e64a3baf16b24ee4d865dc47c4d9c50f, type: 3}
+  - {fileID: 21300000, guid: 60a145d8e3277d344b6de036eff08d9b, type: 3}
+  - {fileID: 21300000, guid: ba412617d8e8df54cb1a1a6f6ed93e56, type: 3}
+  ExplosionEffect: {fileID: 3253354889487508439, guid: a0aa289abed816441b73b782f42a249a, type: 3}
 --- !u!114 &-8021584678712090217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,4 +231,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effectDuration: 0.3
-  squishAmount: 0.2
+  squishAmount: 0.3

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ItemDragDrop : MonoBehaviour
 {
@@ -9,15 +10,18 @@ public class ItemDragDrop : MonoBehaviour
     private Slot _currentSlot = null;
     private Slot _previousSlot = null;
     private WiggleEffect _wiggleEffect;
+    private Collider2D _itemCollider;
 
     private void Start()
     {
-        if(this.transform.parent != null)
+        if (this.transform.parent != null)
         {
             _originalParent = this.transform.parent;
             _originalPosition = this.transform.parent.localPosition;
         }
+
         _wiggleEffect = GetComponent<WiggleEffect>();
+        _itemCollider = GetComponent<Collider2D>();
     }
 
     private void Update()
@@ -37,7 +41,6 @@ public class ItemDragDrop : MonoBehaviour
             Debug.Log("detach");
             if (this.transform.parent != null)
             {
-                Debug.Log("detach");
                 _previousSlot = this.transform.parent.GetComponent<Slot>();
                 if (_previousSlot != null)
                 {
@@ -58,26 +61,54 @@ public class ItemDragDrop : MonoBehaviour
     private void OnMouseUp()
     {
         _isBeingHeld = false;
-        if (_currentSlot != null && !_currentSlot.IsHoldingItem && _currentSlot.Layer==0)
+
+        Vector2 boxSize = _itemCollider.bounds.size;
+
+        Collider2D[] colliders = Physics2D.OverlapBoxAll(transform.position, boxSize, 0f);
+
+        Slot closestSlot = FindClosestSlot(colliders);
+
+        if (closestSlot != null && !closestSlot.IsHoldingItem && closestSlot.Layer == 0)
         {
-            this.transform.SetParent(_currentSlot.transform);
-            this.transform.position = _currentSlot.transform.position;
-            _currentSlot.HoldTheItem(true);
+            this.transform.SetParent(closestSlot.transform);
+            this.transform.position = closestSlot.transform.position;
+            closestSlot.HoldTheItem(true);
             _originalParent = this.transform.parent;
             _originalPosition = this.transform.localPosition;
-            _previousSlot.RefreshCollider();
+
+            _previousSlot?.RefreshCollider();
         }
         else
         {
             this.transform.SetParent(_originalParent);
-            this.transform.localPosition = new Vector2(0,0);
-            if (_previousSlot != null)
-                _previousSlot.HoldTheItem(true);
+            this.transform.localPosition = new Vector2(0, 0);
+            _previousSlot?.HoldTheItem(true);
         }
 
         _currentSlot = null;
         _wiggleEffect.OnReattach();
+    }
 
+    private Slot FindClosestSlot(Collider2D[] colliders)
+    {
+        Slot closestSlot = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (Collider2D collider in colliders)
+        {
+            Slot slot = collider.GetComponent<Slot>();
+            if (slot != null && !slot.IsHoldingItem)
+            {
+                float distance = Vector2.Distance(transform.position, slot.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestSlot = slot;
+                }
+            }
+        }
+
+        return closestSlot;
     }
 
     private void OnTriggerEnter2D(Collider2D other)

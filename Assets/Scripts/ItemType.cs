@@ -6,6 +6,7 @@ public class ItemType : MonoBehaviour
 {
     public int Type; 
     public List<Sprite> Sprites;
+    public GameObject ExplosionEffect;
     private SpriteRenderer _spriteRenderer;
     private Collider2D _itemCollider;
 
@@ -35,16 +36,18 @@ public class ItemType : MonoBehaviour
             return;
         }
 
-        float tintValue;
-        if (layer == 0) tintValue = 0;
-        else if (layer == 1) tintValue = 0.6f;
-        else if (layer == 2) tintValue = 1;
-        else tintValue = 0;
+        Color targetColor;
+        if (layer == 0) targetColor = Color.white; // No tint, fully visible
+        else if (layer == 1) targetColor = Color.Lerp(Color.white, Color.black, 0.6f); // Slightly tinted black
+        else if (layer == 2) targetColor = new Color(1f, 1f, 1f, 0f); // Fully transparent
+        else targetColor = Color.white; // Default to white if layer is outside expected range
 
-        _spriteRenderer.color = Color.Lerp(Color.white, Color.black, tintValue);
+        _spriteRenderer.color = targetColor;
 
         if (layer == 0)
             _itemCollider.enabled = true;
+        else
+            _itemCollider.enabled = false; // Disable collider for other layers
     }
 
 
@@ -62,5 +65,9 @@ public class ItemType : MonoBehaviour
         else _spriteRenderer.sortingOrder = 0;
     }
 
+    public void ApplyExplosion()
+    {
+        Instantiate(ExplosionEffect, transform.position, Quaternion.identity);
+    }
 
 }
