@@ -26,6 +26,7 @@ public class LevelManager : MonoBehaviour
     private int itemTypes;
 
     public GameObject PopupText;
+    public GameObject ChainBox;
     public GameObject Star;
     public GameObject StarTargetPosition;
     public LevelDisplay LevelDisp;
@@ -66,6 +67,17 @@ public class LevelManager : MonoBehaviour
     {
         _destroyedItems++;
         Debug.Log(_destroyedItems + "  " + itemTypes);
+
+        foreach (Transform child in transform)
+        {
+            ChainBox chainBox = child.GetComponent<ChainBox>();
+            if (chainBox != null)
+            {
+                chainBox.TakeDamage();
+                break;
+            }
+        }
+
         if (_destroyedItems == itemTypes)
         {
             if (CurrentLevelIndex < 4)
@@ -78,6 +90,7 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
+
 
     private IEnumerator DestroyChildrenAndProceedToNextLevel()
     {
@@ -99,7 +112,6 @@ public class LevelManager : MonoBehaviour
         _itemPool.Clear();
         if (CurrentLevelIndex < 0 || CurrentLevelIndex >= LevelDataPaths.levelPaths.Length)
         {
-            Debug.LogError("Invalid level index!");
             return;
         }
 
@@ -110,7 +122,6 @@ public class LevelManager : MonoBehaviour
 
         if (jsonFile == null)
         {
-            Debug.LogError($"Level data not found at path: {path}");
             return;
         }
 
@@ -119,6 +130,14 @@ public class LevelManager : MonoBehaviour
         CreateShelves();
         PopulateItemPool();
         PlaceItemsInShelves();
+        if (_currentLevelData.type == "Hard")
+        {
+            SpawnChainBox(1);
+        }
+        else if (_currentLevelData.type == "SuperHard")
+        {
+            SpawnChainBox(2);
+        }
         Seconds = _currentLevelData.duration;
         TimerScript.Duration = Seconds;
         TimerScript.TimeLeft = Seconds;
@@ -198,6 +217,7 @@ public class LevelManager : MonoBehaviour
 
         float posX = column * (shelfScaledSize.x + ShelfSpacingX);
         float posY = -row * (shelfScaledSize.y + ShelfSpacingY);
+        posY += 3;
         if (CurrentLevelIndex % 2 == 0 && (shelfIndex + 2) % 3 == 0)
             posY -= ShelfDownOffset;
         return new Vector3(posX, posY, 0);
@@ -250,7 +270,6 @@ public class LevelManager : MonoBehaviour
     {
         List<Transform> allSlots = new List<Transform>();
 
-        // Collect all available slots
         foreach (Transform shelf in ShelvesParent)
         {
             foreach (Transform slot in shelf)
@@ -274,21 +293,17 @@ public class LevelManager : MonoBehaviour
 
         List<int> itemQueue = new List<int>(_itemPool);
 
-        // Shuffle the items initially
         itemQueue = itemQueue.OrderBy(x => Random.Range(0, itemQueue.Count)).ToList();
 
-        // Adjust items to avoid consecutive duplicates
         for (int i = 0; i < itemQueue.Count; i++)
         {
             if (i > 1 && itemQueue[i] == itemQueue[i - 1] && itemQueue[i] == itemQueue[i - 2])
             {
-                // Find a different item to swap
                 bool itemSwapped = false;
                 for (int j = i + 1; j < itemQueue.Count; j++)
                 {
                     if (itemQueue[j] != itemQueue[i - 1])
                     {
-                        // Swap items
                         int temp = itemQueue[i];
                         itemQueue[i] = itemQueue[j];
                         itemQueue[j] = temp;
@@ -342,6 +357,37 @@ public class LevelManager : MonoBehaviour
 
         Debug.Log($"Items placed: {itemIndex}, Items left in pool: {itemQueue.Count - itemIndex}");
     }
+
+    private void SpawnChainBox(int count)
+    {
+        List<GameObject> availableShelves = new List<GameObject>();
+
+        foreach (Transform child in ShelvesParent)
+        {
+            if (child.GetComponent<Shelf>() != null)
+            {
+                availableShelves.Add(child.gameObject);
+            }
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            if (availableShelves.Count == 0) return;
+
+            int randomIndex = Random.Range(0, availableShelves.Count);
+
+            GameObject selectedShelf = availableShelves[randomIndex];
+            Vector3 shelfPosition = selectedShelf.transform.position;
+            selectedShelf.GetComponent<Shelf>().IsLocked = true;
+
+            Vector3 chainBoxPosition = new Vector3(shelfPosition.x, shelfPosition.y + 0.5f, shelfPosition.z);
+            GameObject box = Instantiate(ChainBox, chainBoxPosition, Quaternion.identity, this.transform);
+            box.GetComponent<ChainBox>().LockedShelf = selectedShelf.GetComponent<Shelf>();
+
+            availableShelves.RemoveAt(randomIndex);
+        }
+    }
+
 
     public void SpawnPopup(Vector2 position)
     {

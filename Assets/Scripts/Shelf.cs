@@ -6,6 +6,7 @@ public class Shelf : MonoBehaviour
     public int layers;
     public int width;
     private bool allMatch = true;
+    public bool IsLocked = false;
 
     public void CheckAndDestroyItems()
     {

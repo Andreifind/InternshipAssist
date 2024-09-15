@@ -36,6 +36,7 @@ public class ItemDragDrop : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (this.GetComponentInParent<Shelf>().IsLocked == false && Time.timeScale>0)
         if (Input.GetMouseButtonDown(0) && (this.GetComponentInParent<Slot>().Layer == 0))
         {
             Debug.Log("detach");
@@ -68,7 +69,7 @@ public class ItemDragDrop : MonoBehaviour
 
         Slot closestSlot = FindClosestSlot(colliders);
 
-        if (closestSlot != null && !closestSlot.IsHoldingItem && closestSlot.Layer == 0)
+        if (closestSlot != null && !closestSlot.IsHoldingItem && closestSlot.Layer == 0 && closestSlot.GetComponentInParent<Shelf>().IsLocked == false && Time.timeScale > 0)
         {
             this.transform.SetParent(closestSlot.transform);
             this.transform.position = closestSlot.transform.position;

@@ -8,6 +8,7 @@ public class Star : MonoBehaviour
     void Start()
     {
         _targetPosition = this.GetComponentInParent<LevelManager>().StarTargetPosition;
+        this.transform.parent = null;
     }
 
     void Update()

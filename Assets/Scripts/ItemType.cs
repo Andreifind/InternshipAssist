@@ -37,17 +37,17 @@ public class ItemType : MonoBehaviour
         }
 
         Color targetColor;
-        if (layer == 0) targetColor = Color.white; // No tint, fully visible
+        if (layer == 0) targetColor = Color.white;
         else if (layer == 1) targetColor = Color.Lerp(Color.white, Color.black, 0.6f); // Slightly tinted black
         else if (layer == 2) targetColor = new Color(1f, 1f, 1f, 0f); // Fully transparent
-        else targetColor = Color.white; // Default to white if layer is outside expected range
+        else targetColor = Color.white;
 
         _spriteRenderer.color = targetColor;
 
         if (layer == 0)
             _itemCollider.enabled = true;
         else
-            _itemCollider.enabled = false; // Disable collider for other layers
+            _itemCollider.enabled = false;
     }
 
 

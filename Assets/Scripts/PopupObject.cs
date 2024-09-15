@@ -21,10 +21,6 @@ public class PopupObject : MonoBehaviour
             _spriteRenderer.sprite = Sprites[Type];
             _originalColor = _spriteRenderer.color;
         }
-        else
-        {
-            Debug.LogError("Sprites list is empty or null.");
-        }
         StartCoroutine(FloatAndFadeOut());
     }
 

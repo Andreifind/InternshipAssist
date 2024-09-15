@@ -28,6 +28,13 @@ public class Timer : MonoBehaviour
             _t = Mathf.PingPong(Time.time / ColorLerpingDuration, 1f);
             Text.color = Color.Lerp(Color.white, Color.red, _t);
         }
+        if(TimeLeft<0)
+        {
+            Debug.Log("You lost the game!");
+            TimeLeft = 0;
+            Text.text = $"00:00";
+            Time.timeScale = 0;
+        }
     }
 
 }
